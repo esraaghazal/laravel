@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+# execute on every push
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+  # runner os
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy
+      # access the server by ssh using the ip and ssh key as a secrets and execute the script that pull the origin and migrate the data
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.BACKEND_IP }}
+          username: ${{ secrets.BACKEND_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/laravel
+            git pull origin main
+            php artisan migrate --force
+            php artisan cache:clear
